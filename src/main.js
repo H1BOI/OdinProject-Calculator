@@ -3,17 +3,13 @@ const screen = document.querySelector("#screen");
 function calculate(a, b, operand) {
     switch (operand) {
         case "+":
-            add(a,b);
-            return;
+            return add(a,b);
         case "-":
-            subtract(a,b);
-            return;
+            return subtract(a,b);
         case "x":
-            multiply(a,b);
-            return;
+            return multiply(a,b);
         case "/":
-            divide(a,b);
-            return;
+            return divide(a,b);
     };
 };
 
@@ -30,6 +26,10 @@ function multiply(a, b) {
 };
 
 function divide(a, b) {
+    if (Number(b) === 0) {
+        return "bruh"
+    };
+
     return Number(a) / Number(b);
 };
 
@@ -92,10 +92,68 @@ const buttons = document.querySelectorAll("button");
 let firstNum = "";
 let operator = null;
 let secondNum = "";
+let justCalculated = false;
 
 buttons.forEach((element) => {
     element.addEventListener("click", (event) => {
-        let screenDisplay = event.target.textContent;
-        screen.textContent = screenDisplay;
+        let buttonInput = event.target.textContent;
+        
+        if (event.target.classList.contains("digit")) {
+            if (justCalculated == true) {
+                firstNum = "";
+                justCalculated = false;
+            };
+
+            if (operator == null) {
+                firstNum += buttonInput;
+                screen.textContent = firstNum;
+            } else {
+                secondNum += buttonInput;
+                screen.textContent = secondNum;
+            }; 
+        };
+
+        if (event.target.classList.contains("operator")) {
+            justCalculated = false;
+            if (operator != null) {
+                if (secondNum.length > 0) {
+                    firstNum = calculate(firstNum,secondNum,operator);
+                    screen.textContent = firstNum;
+                    secondNum = "";
+                    operator = buttonInput;
+                } else {
+                    operator = buttonInput;
+                };
+            } else {
+                operator = buttonInput;
+            };
+        };
+
+        if (event.target.classList.contains("equal")) {
+            if (operator === null || secondNum === "") {
+                alert("What you trying to calculate?")
+                return;
+            };
+
+            firstNum = calculate(firstNum,secondNum,operator);
+            screen.textContent = firstNum;
+            if (firstNum === "bruh") {
+                firstNum = "";
+                justCalculated = false;
+            } else {
+                justCalculated = true;
+            };
+            secondNum = "";
+            operator = null;
+        };
+
+        if (event.target.classList.contains("clear")) {
+            firstNum = "";
+            secondNum = "";
+            operator = null;
+            screen.textContent = "";
+            justCalculated = false;
+        };
+
     });
 });
